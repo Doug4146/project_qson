@@ -12,8 +12,7 @@ class Node:
     name: str  # Readable identifier
     lat: float  # Latitude
     lon: float  # Longitude
-    attributes: dict[str, Any] = field(default_factory=dict)
-    # attributes will grow in Phase 2: elevation, geology_score, freight_demand, etc.
+    attributes: dict[str, Any] = field(default_factory=dict)  # Added by enrich_nodes()
 
     def __repr__(self):
         return f"Node({self.id}, '{self.name}', lat={self.lat}, lon={self.lon})"
