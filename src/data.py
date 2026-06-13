@@ -12,7 +12,7 @@ ox.settings.use_cache = True
 
 
 # -----------------------------------------------------------------------------
-# OSM FETCH
+# Initial OSM FETCH
 # -----------------------------------------------------------------------------
 
 
@@ -136,7 +136,7 @@ def fetch_transport_connectivity(nodes: list[Node], bbox: dict) -> list[Node]:
     """
     Counts airports and rail stations within 10km of each node via OSM.
     High count = already well served = hyperloop adds less marginal value.
-    Low count = underserved = hyperloop fills a genuine gap (per report framing).
+    Low count = underserved = hyperloop fills a genuine gap.
     Uses OSM cache so fast after first run.
     """
     print(f"[data] Fetching transport connectivity for {len(nodes)} nodes...")
@@ -262,7 +262,7 @@ def enrich_nodes(nodes: list[Node], bbox: dict) -> list[Node]:
     """
     Attaches all attributes to nodes. Call after fetch_nodes() in main.py.
     """
-    nodes = fetch_elevation(nodes)
+    # nodes = fetch_elevation(nodes)
     nodes = fetch_transport_connectivity(nodes, bbox)
     nodes = fetch_port_proximity(nodes, bbox)
     nodes = compute_city_distances(nodes)
