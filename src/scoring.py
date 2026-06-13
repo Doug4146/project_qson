@@ -1,8 +1,9 @@
+from collections import defaultdict
+
 import numpy as np
 from sklearn.cluster import KMeans
 
 from src.node import Node
-
 
 # list of Node attributes
 ATTRIBUTES = [
@@ -31,7 +32,7 @@ def normalize_nodes(nodes: list[Node]) -> list[Node]:
         ]
 
         if not values:
-            print(f"[scoring] No values for {attr}, skipping normalization")
+            print(f"      [normalize] '{attr}' has no values, skipping")
             for n in nodes:
                 n.attributes[f"{attr}_norm"] = None
             continue
@@ -45,7 +46,7 @@ def normalize_nodes(nodes: list[Node]) -> list[Node]:
                 continue
             node.attributes[f"{attr}_norm"] = (raw - lo) / (hi - lo)
 
-    print("[scoring] Normalization complete")
+    print("      Normalization complete")
     return nodes
 
 
@@ -66,9 +67,17 @@ def score_nodes(nodes: list[Node], weights: dict) -> list[Node]:
                 norm = 1 - norm
             score += weight * norm
         node.attributes["node_score"] = round(score, 4)
-        print(f"[scoring] {node.name}: {node.attributes['node_score']}")
 
-    print("[scoring] Scoring complete")
+    scores = sorted(
+        [(n.name, n.attributes["node_score"]) for n in nodes],
+        key=lambda x: x[1],
+        reverse=True,
+    )
+    print("      Top 5 scored nodes:")
+    for name, score in scores[:5]:
+        print(f"        {name}: {score}")
+
+    print("      Scoring complete")
     return nodes
 
 
@@ -79,8 +88,6 @@ def select_nodes(nodes: list[Node], k: int) -> list[Node]:
     Returns k nodes spread across the bbox.
     """
     coords = np.array([[n.lat, n.lon] for n in nodes])
-
-    # run the K-Means algorithm to geographically cluster the nodes
     kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
     labels = kmeans.fit_predict(coords)
 
@@ -89,26 +96,24 @@ def select_nodes(nodes: list[Node], k: int) -> list[Node]:
         node.attributes["cluster"] = int(label)
 
     # print cluster summary
-    from collections import defaultdict
-
     cluster_groups = defaultdict(list)
     for node in nodes:
         cluster_groups[node.attributes["cluster"]].append(node.name)
     for cluster_id, names in sorted(cluster_groups.items()):
-        print(f"[scoring] Cluster {cluster_id}: {', '.join(names)}")
+        print(f"      Cluster {cluster_id}: {', '.join(names)}")
 
     # pick highest scoring node from each cluster
     selected = []
     for cluster_id in range(k):
         cluster_nodes = [n for n in nodes if n.attributes["cluster"] == cluster_id]
         if not cluster_nodes:
-            print(f"[scoring] Cluster {cluster_id} is empty, skipping")
+            print(f"      Cluster {cluster_id}: empty, skipping")
             continue
         best = max(cluster_nodes, key=lambda n: n.attributes.get("node_score", 0))
         selected.append(best)
         print(
-            f"[scoring] Cluster {cluster_id} winner: {best.name} (score: {best.attributes['node_score']})"
+            f"      Cluster {cluster_id} → {best.name} (score: {best.attributes['node_score']})"
         )
 
-    print(f"[scoring] Selected {len(selected)} nodes")
+    print(f"      {len(selected)} nodes selected")
     return selected

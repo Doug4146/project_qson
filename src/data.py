@@ -262,7 +262,7 @@ def enrich_nodes(nodes: list[Node], bbox: dict) -> list[Node]:
     """
     Attaches all attributes to nodes. Call after fetch_nodes() in main.py.
     """
-    # nodes = fetch_elevation(nodes)
+    nodes = fetch_elevation(nodes)
     nodes = fetch_transport_connectivity(nodes, bbox)
     nodes = fetch_port_proximity(nodes, bbox)
     nodes = compute_city_distances(nodes)

@@ -10,13 +10,9 @@ BOUNDING_BOX = {
 }
 
 
-EDGE_PROXIMITY_THRESHOLD_KM = 100
-DIRECTED_GRAPH = False
-
-
-# -----------------------------------------------------------------------------
-# NODE SELECTION
-# -----------------------------------------------------------------------------
+# For the A* route search
+ROUTE_START = "Dwight"
+ROUTE_END = "Union"
 
 
 # Number of nodes for the hyperloop network

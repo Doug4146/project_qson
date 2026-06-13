@@ -6,7 +6,9 @@ import numpy as np
 from src.node import Node
 
 
-def visualize_clusters(nodes: list[Node], filename: str):
+def visualize_clusters(
+    nodes: list[Node], save_path: str = "output_images\\clusters.png"
+):
     """Plot all nodes colored by cluster, labeled by name."""
 
     cluster_ids = [n.attributes.get("cluster", 0) for n in nodes]
@@ -30,13 +32,20 @@ def visualize_clusters(nodes: list[Node], filename: str):
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.tight_layout()
-    plt.savefig(filename, dpi=150)
+    plt.savefig(save_path, dpi=150)
     print("[viz] Cluster plot saved to clusters.png")
     plt.show()
 
 
-def visualize(G: nx.Graph, save_path: str = "network_graph.png"):
-    """Plot the graph using lat/lon as coordinates and save to disk."""
+def visualize_graph(
+    G: nx.Graph,
+    path: list[str] = None,
+    save_path: str = "output_images\\hyperloop_network.png",
+):
+    """
+    Plot the graph using lat/lon as coordinates and save to disk.
+    Optionally plot a path.
+    """
     pos = {nid: (d["lon"], d["lat"]) for nid, d in G.nodes(data=True)}
     labels = {nid: d.get("name", nid) for nid, d in G.nodes(data=True)}
 
@@ -51,8 +60,16 @@ def visualize(G: nx.Graph, save_path: str = "network_graph.png"):
         edge_color="gray",
         width=0.8,
     )
+
+    # draw route on top if provided
+    if path and len(path) > 1:
+        path_edges = list(zip(path[:-1], path[1:]))
+        nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color="red", width=3)
+        nx.draw_networkx_nodes(G, pos, nodelist=path, node_color="red", node_size=150)
+
     plt.title("Hyperloop Network")
-    plt.tight_layout()
+    # plt.tight_layout()
+    plt.layout_engine = "constrained"
     plt.savefig(save_path, dpi=150)
     print(f"[viz] Saved to {save_path}")
     plt.show()
