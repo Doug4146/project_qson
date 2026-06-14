@@ -3,7 +3,8 @@ import math
 import osmnx as ox
 import requests
 from geopy.distance import geodesic
-from shapely.geometry import box
+from shapely.geometry import box, Polygon
+from src.config import coords
 
 from src.node import Node
 
@@ -24,7 +25,8 @@ def fetch_nodes(bbox: dict) -> list[Node]:
     """
     print(f"[data] Querying OSM within bbox: {bbox}")
 
-    region = box(bbox["min_lon"], bbox["min_lat"], bbox["max_lon"], bbox["max_lat"])
+    # region = box(bbox["min_lon"], bbox["min_lat"], bbox["max_lon"], bbox["max_lat"])
+    region = Polygon(coords)
     tags = {"place": ["city", "town", "village", "hamlet"]}
 
     try:
@@ -141,7 +143,8 @@ def fetch_transport_connectivity(nodes: list[Node], bbox: dict) -> list[Node]:
     """
     print(f"[data] Fetching transport connectivity for {len(nodes)} nodes...")
 
-    region = box(bbox["min_lon"], bbox["min_lat"], bbox["max_lon"], bbox["max_lat"])
+    # region = box(bbox["min_lon"], bbox["min_lat"], bbox["max_lon"], bbox["max_lat"])
+    region = Polygon(coords)
     tags = {"aeroway": "aerodrome", "railway": ["station", "halt"]}
 
     try:
@@ -183,7 +186,8 @@ def fetch_port_proximity(nodes: list[Node], bbox: dict) -> list[Node]:
     """
     print("[data] Fetching port proximity...")
 
-    region = box(bbox["min_lon"], bbox["min_lat"], bbox["max_lon"], bbox["max_lat"])
+    # region = box(bbox["min_lon"], bbox["min_lat"], bbox["max_lon"], bbox["max_lat"])
+    region = Polygon(coords)
     tags = {"harbour": True, "landuse": "port"}
 
     try:
